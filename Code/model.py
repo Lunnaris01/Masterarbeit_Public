@@ -76,6 +76,8 @@ def get_model(model_name, n_classes):
         return SimpleCNN(n_classes)
     if(model_name == "advanced_cnn"):
         return ImprovedCNN(n_classes)  
+    raise ValueError(f"Unsupported model name: {model_name}")
+
         
         
         

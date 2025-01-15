@@ -9,7 +9,7 @@ from torchvision.datasets.utils import download_and_extract_archive, verify_str_
 from torchvision.datasets.vision import VisionDataset
 
 class ATSDS(VisionDataset):
-    """`Augmented Data using Traffic signs from the German Traffic Sign Recognition Benchmark (GTSRB) <https://benchmark.ini.rub.de/>`_ Dataset.
+    """`Augmented Data using Traffic signs based on the German Traffic Sign Recognition Benchmark (GTSRB) <https://benchmark.ini.rub.de/>`_ Dataset.
 
     Args:
         root (string): Root directory of the dataset.
