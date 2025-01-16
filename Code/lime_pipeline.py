@@ -27,7 +27,7 @@ def parse_args():
     parser.add_argument('--dataset_type', type=str, default="atsds_large", help="Type of the dataset.")
     parser.add_argument('--dataset_split', type=str, default="test", help="Dataset split (e.g., 'train', 'test').")
     parser.add_argument('--images_path', type=str, default="data/atsds_large/test", help="Path to the images.")
-    parser.add_argument('--output_path', type=str, default="data/auswertung/simple_cnn/lime/test/", help="Path to save outputs.")
+    parser.add_argument('--output_path', type=str, default="data/auswertung/", help="Path to save outputs.")
     parser.add_argument('--random_seed', type=int, default=1414, help="Random seed for reproducibility.")
     parser.add_argument('--batch_size', type=int, default=1, help="Batch size for data loader.")
     parser.add_argument('--num_workers', type=int, default=2, help="Number of workers for data loading.")
@@ -125,7 +125,8 @@ def main():
     categories, label_idx_dict, imagedict = prepare_categories_and_images(args.images_path)
 
     # Ensure output directories exist
-    create_output_directories(args.output_path, categories)
+    output_path = args.output_path + args.model_name + "/lime/test/"
+    create_output_directories(output_path, categories)
 
     # Initialize LIME explainer
     explainer = lime_image.LimeImageExplainer()
@@ -133,7 +134,7 @@ def main():
     # Generate LIME visualizations
     generate_lime_visualizations(
         model, device, categories, imagedict, label_idx_dict,
-        args.output_path, args.images_path, explainer, get_preprocess_transform()
+        output_path, args.images_path, explainer, get_preprocess_transform()
     )
 
 if __name__ == "__main__":

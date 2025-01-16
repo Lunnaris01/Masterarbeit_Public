@@ -25,21 +25,37 @@ def parse_args():
     parser.add_argument('--dataset_type', type=str, default="atsds_large", help="Type of the dataset.")
     parser.add_argument('--dataset_split', type=str, default="test", help="Dataset split (e.g., 'train', 'test').")
     parser.add_argument('--images_path', type=str, default="data/atsds_large/test", help="Path to the images.")
-    parser.add_argument('--output_path', type=str, default="data/auswertung/simple_cnn/gradcam/test/", help="Path to save outputs.")
+    parser.add_argument('--output_path', type=str, default="data/auswertung/", help="Path to save outputs.")
     parser.add_argument('--random_seed', type=int, default=1414, help="Random seed for reproducibility.")
     parser.add_argument('--batch_size', type=int, default=1, help="Batch size for data loader.")
     parser.add_argument('--num_workers', type=int, default=2, help="Number of workers for data loading.")
+    parser.add_argument('--target_layer', type=str, default="conv3", help="Target layer for Grad-CAM (e.g., 'conv3').")
 
     return parser.parse_args()
 
 
 
+def get_target_layer(model, target_layer_name):
+    """Get the target layer from the model based on the given name."""
+    if '.' in target_layer_name:  # Handle complex paths like 'layer4.-1.conv3'
+        layers = target_layer_name.split('.')  # e.g., ['layer4', '-1', 'conv3']
+        block_layer = getattr(model,layers[0])
+        target_block = block_layer[int(layers[1])]
+        target_layer = getattr(target_block,layers[2])
+    else:
+        # Handle simple layer names like 'conv3'
+        target_layer = getattr(model, target_layer_name)
+
+    # Ensure that the layer exists
+    if target_layer is None:
+        raise ValueError(f"Layer '{target_layer_name}' not found in the model.")
+    return target_layer
 
 
 
 def generate_gradcam_visualizations(model: torch.nn.Module, device: torch.device, categories: list[str],
                                      imagedict: dict[str, list[str]], label_idx_dict: dict[str, int],
-                                     output_path: str, images_path: str) -> None:
+                                     output_path: str, images_path: str, layer_target: str) -> None:
     """
     Generate Grad-CAM visualizations for each image in the dataset and save them.
 
@@ -52,6 +68,7 @@ def generate_gradcam_visualizations(model: torch.nn.Module, device: torch.device
         output_path (str): Path where Grad-CAM results will be saved.
         images_path (str): Path to the dataset images.
     """
+    target_layer = get_target_layer(model, layer_target)
     for category in categories:
         model.eval()
         images = imagedict[category]
@@ -60,7 +77,7 @@ def generate_gradcam_visualizations(model: torch.nn.Module, device: torch.device
                 image_tensor = TRANSFORM_TEST(img).unsqueeze(0).to(device)
                 shape = img.size[::-1]  # PIL uses (width, height)
 
-                mask, _ = get_gradcam(model, model.conv3, image_tensor, label_idx_dict[category], shape)
+                mask, _ = get_gradcam(model, target_layer, image_tensor, label_idx_dict[category], shape)
                 save_xai_outputs(mask, np.array(img), category, image_name, output_path)
 
 def main():
@@ -96,11 +113,12 @@ def main():
     categories, label_idx_dict, imagedict = prepare_categories_and_images(args.images_path)
 
     # Ensure output directories exist
-    create_output_directories(args.output_path, categories)
+    output_path = args.output_path + args.model_name + "/gradcam/test/"
+    create_output_directories(output_path, categories)
 
     # Run Grad-CAM visualization
     generate_gradcam_visualizations(
-        model, device, categories, imagedict, label_idx_dict, args.output_path, args.images_path
+        model, device, categories, imagedict, label_idx_dict, output_path, args.images_path, args.target_layer
     )
 
 if __name__ == "__main__":
