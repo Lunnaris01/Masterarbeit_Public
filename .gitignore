@@ -136,4 +136,4 @@ Code/model
 #Checkpoints / cache
 Code/.ipynb_checkpoints
 Code/__pycache__
-Code/.idea
+Code/.idea/*
