@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument('--random_seed', type=int, default=1414, help="Random seed for reproducibility.")
     parser.add_argument('--batch_size', type=int, default=1, help="Batch size for data loader.")
     parser.add_argument('--num_workers', type=int, default=2, help="Number of workers for data loading.")
-    parser.add_argument('--target_layer', type=str, default="conv3", help="Target layer for Grad-CAM (e.g., 'conv3').")
+    parser.add_argument('--target_layer', type=str, default="conv3", help="Target layer for Grad-CAM (e.g., Simple CNN: 'conv3' ResNet: 'layer4.-1.conv3).")
 
     return parser.parse_args()
 
