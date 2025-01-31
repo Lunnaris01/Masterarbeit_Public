@@ -169,4 +169,94 @@ def get_input_tensors(image):
 def get_contained_part(mask1,mask2):
     mask1,mask2 = normalize_image(mask1),normalize_image(mask2)
     return np.array((mask1 == 1.0) & (mask2 == 1.0))
+
+
+def create_gaussian_bell(res,radius=64,scale=1.21e-3,mu=0):
+    """
+    Creates a 2D Gaussian bell-shaped filter.
+
+    Parameters:
+    - res (int): The size of the image (width and height need to be the same).
+    - radius (int): The radius of the bell-shaped filter.
+    - scale (float): Scaling factor for the Gaussian function (default: 1.21e-3).
+    - mu (float): Mean value for the Gaussian function (default: 0).
+
+    Returns:
+    numpy.ndarray: A 2D Gaussian bell-shaped filter.
+    """
+
+    xx, yy =  np.meshgrid(np.arange(-radius, radius+1), np.arange(-radius, radius+1))
+
+    bell = np.exp(-((xx - mu)*(xx - mu)+(yy - mu)*(yy - mu))*scale)
+    # since returned array is square shapes set all values outside the desired circle to 0
+    for i in range(bell.shape[0]):
+        for j in range(bell.shape[1]):
+            if (np.sqrt((i-radius)**2+(j-radius)**2)>radius):
+                bell[i][j]=0
+    return bell
+
+
+def add_gaussian_bell_to_image(img, x, y, weight, res, radius, bell):
+    """
+    Adds a precomputed Gaussian bell to a specific position on the image.
+
+    Parameters:
+    - img (numpy.ndarray): The input image.
+    - x (int): The x-coordinate of the center of the bell.
+    - y (int): The y-coordinate of the center of the bell.
+    - weight (float): The weight of the bell.
+    - res (int): The size of the filter (both width and height).
+    - radius (int): The radius of the bell-shaped filter.
+    - bell (numpy.ndarray): (see create_gaussian_bell).
+
+    Raises:
+    - AssertionError: If the specified position (x, y) is out of bounds.
+
+    """
+    
+    assert 0 <= x < res
+    assert 0 <= y < res
+    
+    # account for margin
+    x += radius
+    y += radius
+    
+    idx_x1 = x - radius
+    idx_x2 = x + radius + 1
+    
+    idx_y1 = y - radius
+    idx_y2 = y + radius + 1
+    
+    img[idx_x1:idx_x2, idx_y1: idx_y2] += bell*weight
+
+
+def duration_distance_weighted_density_mask_gaussian(pixels,durations,size = (224,224),radius = 64,bell_scale=1.21e-3):
+    """
+    Creates a duration-distance-weighted density mask using Gaussian bells.
+
+    Parameters:
+    - pixels (list of tuples): List of pixel coordinates (x, y).
+    - durations (list): List of durations corresponding to each pixel.
+    - size (tuple): The size of the output mask (width, height) (default: (1024, 1024)).
+    - radius (int): The radius of the Gaussian bell filter (default: 58).
+
+    Returns:
+    tuple: A tuple containing the density mask and the normalized version of the mask.
+
+    Note:
+    - The function assumes that the input pixel coordinates are within the specified size.
+
+    """
+    res = size[0]
+    mask = np.zeros((res + 2 * radius, res + 2 * radius))
+    bell = create_gaussian_bell(size[0], radius,bell_scale)
+    
+    for pixel, duration in zip(pixels, durations):
+        add_gaussian_bell_to_image(mask, pixel[0], pixel[1], duration, res, radius, bell)
+    
+    mask = mask[radius:-radius, radius:-radius]
+    normalized_mask = (mask - mask.min()) / (mask.max() - mask.min())
+    
+    return mask, normalized_mask
+
     

@@ -5,7 +5,7 @@ from utils import get_percentage_of_image, normalize_image
 
 # Constants
 MODEL_TYPE = "simple_cnn"
-XAI_TYPE = "gradcam"
+XAI_TYPE = "lime"
 BASE_DIR = "data/"
 DATASET = "atsds_large"
 DATASET_SPLIT = "test"

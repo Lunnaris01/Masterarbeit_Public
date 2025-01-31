@@ -38,24 +38,45 @@ def parse_args():
 def get_target_layer(model, target_layer_name):
     """Get the target layer from the model based on the given name."""
     if '.' in target_layer_name:  # Handle complex paths like 'layer4.-1.conv3'
-        layers = target_layer_name.split('.')  # e.g., ['layer4', '-1', 'conv3']
-        block_layer = getattr(model,layers[0])
-        target_block = block_layer[int(layers[1])]
-        target_layer = getattr(target_block,layers[2])
-    else:
+        layers = target_layer_name.split('.')
+        target_layer = model
+        for layer in layers:
+                # Handle cases where the layer is an index (e.g., '-1' or '0')
+                if layer.lstrip('-').isdigit():
+                    index = int(layer)
+                    if isinstance(target_layer, (list, tuple)):
+                        target_layer = target_layer[index]
+                    else:
+                        # Handle cases where the layer is a sequential or module list
+                        target_layer = list(target_layer.children())[index]
+                else:
+                    # Handle cases where the layer is an attribute (e.g., 'features', 'block')
+                    target_layer = getattr(target_layer, layer)
+        return target_layer        
+    #else:
         # Handle simple layer names like 'conv3'
-        target_layer = getattr(model, target_layer_name)
+    #    target_layer = getattr(model, target_layer_name)
 
     # Ensure that the layer exists
-    if target_layer is None:
-        raise ValueError(f"Layer '{target_layer_name}' not found in the model.")
-    return target_layer
+    #if target_layer is None:
+    #    raise ValueError(f"Layer '{target_layer_name}' not found in the model.")
+    #return target_layer
 
+#def get_target_layer(model, model_name):
+#    match(model_name):
+#        case("simple_cnn"):
+#            return model.conv3
+#        case("resnet50"):
+#            return model.layer4[-1].conv3
+#        case("vgg16"):
+#            return model.features[-3]
+#        case("convnext_tiny"):
+#            return model.features[-1][-1].block[0]
 
 
 def generate_gradcam_visualizations(model: torch.nn.Module, device: torch.device, categories: list[str],
                                      imagedict: dict[str, list[str]], label_idx_dict: dict[str, int],
-                                     output_path: str, images_path: str, layer_target: str) -> None:
+                                     output_path: str, images_path: str, model_name: str) -> None:
     """
     Generate Grad-CAM visualizations for each image in the dataset and save them.
 
@@ -68,7 +89,7 @@ def generate_gradcam_visualizations(model: torch.nn.Module, device: torch.device
         output_path (str): Path where Grad-CAM results will be saved.
         images_path (str): Path to the dataset images.
     """
-    target_layer = get_target_layer(model, layer_target)
+    target_layer = get_target_layer(model, model_name)
     for category in categories:
         model.eval()
         images = imagedict[category]
