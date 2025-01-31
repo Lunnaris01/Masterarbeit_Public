@@ -1,0 +1,23 @@
+python gradcam_pipeline.py --model_name "simple_cnn" --model_checkpoint "model/simple_cnn_1_1.tar" --target_layer "conv3"
+python PRISM_pipeline.py --model_name "simple_cnn" --model_checkpoint "model/simple_cnn_1_1.tar"
+python lime_pipeline.py --model_name "simple_cnn" --model_checkpoint "model/simple_cnn_1_1.tar"
+python XRAI_pipeline.py --model_name "simple_cnn" --model_checkpoint "model/simple_cnn_1_1.tar"
+python IGF_pipeline.py --model_name "simple_cnn" --model_checkpoint "model/simple_cnn_1_1.tar"
+
+python gradcam_pipeline.py --model_name "resnet50" --model_checkpoint "model/resnet50_1_1.tar" --target_layer "layer4.-1.conv3"
+python PRISM_pipeline.py --model_name "resnet50" --model_checkpoint "model/resnet50_1_1.tar"
+python lime_pipeline.py --model_name "resnet50" --model_checkpoint "model/resnet50_1_1.tar"
+python XRAI_pipeline.py --model_name "resnet50" --model_checkpoint "model/resnet50_1_1.tar"
+python IGF_pipeline.py --model_name "resnet50" --model_checkpoint "model/resnet50_1_1.tar"
+
+python gradcam_pipeline.py --model_name "convnext_tiny" --model_checkpoint "model/convnext_tiny_1_1.tar" --target_layer "features.-1.-1.block.0"
+python PRISM_pipeline.py --model_name "convnext_tiny" --model_checkpoint "model/convnext_tiny_1_1.tar"
+python lime_pipeline.py --model_name "convnext_tiny" --model_checkpoint "model/convnext_tiny_1_1.tar"
+python XRAI_pipeline.py --model_name "convnext_tiny" --model_checkpoint "model/convnext_tiny_1_1.tar"
+python IGF_pipeline.py --model_name "convnext_tiny" --model_checkpoint "model/convnext_tiny_1_1.tar"
+
+python gradcam_pipeline.py --model_name "vgg16" --model_checkpoint "model/vgg16_1_1.tar" --target_layer "features.-3"
+python PRISM_pipeline.py --model_name "vgg16" --model_checkpoint "model/vgg16_1_1.tar"
+python lime_pipeline.py --model_name "vgg16" --model_checkpoint "model/vgg16_1_1.tar"
+python XRAI_pipeline.py --model_name "vgg16" --model_checkpoint "model/vgg16_1_1.tar"
+python IGF_pipeline.py --model_name "vgg16" --model_checkpoint "model/vgg16_1_1.tar"
