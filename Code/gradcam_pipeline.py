@@ -41,17 +41,17 @@ def get_target_layer(model, target_layer_name):
         layers = target_layer_name.split('.')
         target_layer = model
         for layer in layers:
-                # Handle cases where the layer is an index (e.g., '-1' or '0')
-                if layer.lstrip('-').isdigit():
-                    index = int(layer)
-                    if isinstance(target_layer, (list, tuple)):
-                        target_layer = target_layer[index]
-                    else:
-                        # Handle cases where the layer is a sequential or module list
-                        target_layer = list(target_layer.children())[index]
+            # Handle cases where the layer is an index (e.g., '-1' or '0')
+            if layer.lstrip('-').isdigit():
+                index = int(layer)
+                if isinstance(target_layer, (list, tuple)):
+                    target_layer = target_layer[index]
                 else:
-                    # Handle cases where the layer is an attribute (e.g., 'features', 'block')
-                    target_layer = getattr(target_layer, layer)
+                    # Handle cases where the layer is a sequential or module list
+                    target_layer = list(target_layer.children())[index]
+            else:
+                # Handle cases where the layer is an attribute (e.g., 'features', 'block')
+                target_layer = getattr(target_layer, layer)
         return target_layer        
     #else:
         # Handle simple layer names like 'conv3'

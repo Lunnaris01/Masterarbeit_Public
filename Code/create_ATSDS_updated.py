@@ -84,7 +84,7 @@ def create_directories(base_dir, classname, split):
 
 def process_image_split(classname, object_areas, image_indices, background_indices, split, counter, labelfile):
     """Process images for train/test split, ensuring objects are at least 64 pixels from the edges."""
-    margin = 64  # Minimum distance from the edges
+    margin = 0  # Minimum distance from the edges
     RESIZE_SIZE = 128
 
     for j in image_indices:
