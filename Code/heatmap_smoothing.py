@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from typing import Dict, List
 from argparse import ArgumentParser
 from utils import normalize_image
+from tqdm import tqdm
 
 def avg_pooling(mask: torch.Tensor, kernel_size: int , stride: int) -> torch.Tensor:
     """
@@ -52,7 +53,7 @@ def process_images(xai_dir: str, categories: List[str], images_path: str, kernel
         kernel_size (int): Pooling kernel size.
         stride (int): Pooling stride.
     """
-    for category in categories:
+    for category in tqdm(categories):
         category_images = os.listdir(os.path.join(images_path, category))
         for image_name in category_images:
             mask_path = os.path.join(xai_dir, category, "mask", image_name + ".npy")
@@ -74,8 +75,8 @@ def main():
     Main function to process heatmaps and apply smoothing.
     """
     parser = ArgumentParser(description="Heatmap Smoothing Script")
-    parser.add_argument("--model_type", type=str, default="simple_cnn", help="Model type (e.g., simple_cnn)")
-    parser.add_argument("--xai_type", type=str, default="gradcam", help="XAI method (e.g., gradcam)")
+    parser.add_argument("--model_types", nargs="+", default=["simple_cnn","convnext_tiny","resnet50","vgg16"], help="Model type (e.g., simple_cnn)")
+    parser.add_argument("--xai_types", nargs="+", default=["gradcam","lime","prism","xrai","igf"], help="XAI method as list!")
     parser.add_argument("--base_dir", type=str, default="data/", help="Base directory for data")
     parser.add_argument("--dataset", type=str, default="atsds_large", help="Dataset name")
     parser.add_argument("--dataset_split", type=str, default="test", help="Dataset split (e.g., train, test)")
@@ -87,19 +88,20 @@ def main():
     # Paths and directories
     images_path = os.path.join(args.base_dir, args.dataset, args.dataset_split)
     categories = sorted(os.listdir(images_path))
+    for xai_model in tqdm(args.model_types):
+        for xai_method in tqdm(args.xai_types):
+            xai_dir = prepare_directories(
+                args.base_dir, xai_model, xai_method, args.dataset_split, categories
+            )
 
-    xai_dir = prepare_directories(
-        args.base_dir, args.model_type, args.xai_type, args.dataset_split, categories
-    )
-
-    # Process images
-    process_images(
-        xai_dir=xai_dir,
-        categories=categories,
-        images_path=images_path,
-        kernel_size=args.kernel_size,
-        stride=args.stride
-    )
+            # Process images
+            process_images(
+                xai_dir=xai_dir,
+                categories=categories,
+                images_path=images_path,
+                kernel_size=args.kernel_size,
+                stride=args.stride
+            )
 
 if __name__ == "__main__":
     main()
