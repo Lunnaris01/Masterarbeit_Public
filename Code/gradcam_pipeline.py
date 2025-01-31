@@ -52,15 +52,14 @@ def get_target_layer(model, target_layer_name):
             else:
                 # Handle cases where the layer is an attribute (e.g., 'features', 'block')
                 target_layer = getattr(target_layer, layer)
-        return target_layer        
-    #else:
+    else:
         # Handle simple layer names like 'conv3'
-    #    target_layer = getattr(model, target_layer_name)
+        target_layer = getattr(model, target_layer_name)
 
-    # Ensure that the layer exists
-    #if target_layer is None:
-    #    raise ValueError(f"Layer '{target_layer_name}' not found in the model.")
-    #return target_layer
+     # Ensure that the layer exists
+    if target_layer is None:
+        raise ValueError(f"Layer '{target_layer_name}' not found in the model.")
+    return target_layer
 
 #def get_target_layer(model, model_name):
 #    match(model_name):
