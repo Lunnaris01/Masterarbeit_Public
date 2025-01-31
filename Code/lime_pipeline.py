@@ -51,8 +51,8 @@ def batch_predict(images, model, preprocess_transform):
 def get_pil_transform():
     """Return the PIL transform for resizing and cropping."""
     transf = transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.CenterCrop(224)
+        transforms.Resize((224, 224))
+        #transforms.CenterCrop(224)
     ])
     return transf
 
