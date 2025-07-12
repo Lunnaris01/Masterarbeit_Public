@@ -15,4 +15,4 @@ Each XAI method has it's own "pipeline" like [gradcam_pipeline.py](https://githu
 
 # Occlusion and Revelation Dataset.
 
-The datasets are created using the [occlusion_revelation_dataset_creation.py](https://github.com/Lunnaris01/Masterarbeit_Public/blob/main/Code/occlusion_revelation_dataset_creation.py) file. One can easily expand it for different experiments like occlusion with different colors or noise!
+The datasets are created using the [occlusion_revelation_dataset_creation.py](https://github.com/Lunnaris01/Masterarbeit_Public/blob/main/Code/occlusion_revelation_dataset_creation.py) file. One can easily expand it for different experiments like occlusion with different colors or noise! [commands_pipeline.sh ](https://github.com/Lunnaris01/Masterarbeit_Public/blob/main/Code/commands_pipeline.sh) can be used and provides a guideline for the workflow.
